@@ -1,4 +1,6 @@
 import { defineConfig } from "wxt";
+import { resolve } from "path";
+import { copyFileSync } from "fs";
 
 /**
  * WXT configuration for the Nota extension.  This file defines the extension's
@@ -8,13 +10,21 @@ import { defineConfig } from "wxt";
  * contentScripts key is needed.
  */
 export default defineConfig({
+  hooks: {
+    "build:before": () => {
+      copyFileSync(
+        resolve("node_modules/@inboxsdk/core/pageWorld.js"),
+        resolve("public/pageWorld.js")
+      );
+    },
+  },
   // Enable React support provided by WXT's module-react plugin.  This
   // automatically configures Vite and esbuild for JSX transformation.
   modules: ["@wxt-dev/module-react"],
   manifest: {
     name: "Nota Extension",
     description: "Display and add notes to email threads inside Gmail.",
-    version: "0.1.1",
+    version: "0.1.2",
     manifest_version: 3,
     // Storage permission allows us to store the API token in chrome.storage.local.
     permissions: ["storage", "scripting"],

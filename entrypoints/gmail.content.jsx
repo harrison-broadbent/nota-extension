@@ -17,31 +17,40 @@ const INBOX_SDK_APP_ID = "sdk_Nota-email_e2bb0155f1";
  */
 export default defineContentScript({
   matches: ["https://mail.google.com/*"],
-  runAt: "document_end",
-  async main() {
-    InboxSDK.load(2, INBOX_SDK_APP_ID).then((sdk) => {
-      sdk.Conversations.registerThreadViewHandler((threadView) => {
-        // Create a container element for the React app.
-        const container = document.createElement("div");
-
-        // Use InboxSDK to add a sidebar panel to the thread view.  Passing
-        // our container here ensures that the panel will host our React app.
-        const panel = threadView.addSidebarContentPanel({
-          el: container,
-          title: "Nota Inbox *",
-          hideTitleBar: false,
-        });
-
-        // Mount the React NotesApp component into the container.
-        const root = createRoot(container);
-        root.render(<NotesApp sdk={sdk} threadView={threadView} />);
-
-        // Clean up when the panel is destroyed.  This happens when the user
-        // navigates away from the thread.  Unmounting prevents memory leaks.
-        panel.on("destroy", () => {
-          root.unmount();
-        });
+  runAt: "document_idle",
+  cssInjectionMode: "ui",
+  async main(ctx) {
+    const sdk = await InboxSDK.load(2, INBOX_SDK_APP_ID);
+    sdk.Conversations.registerThreadViewHandler((threadView) => {
+      const container = document.createElement("div");
+      const panel = threadView.addSidebarContentPanel({
+        el: container,
+        title: "Nota Inbox *",
+        hideTitleBar: false,
       });
+
+      (async () => {
+        let reactRoot;
+        const ui = await createShadowRootUi(ctx, {
+          name: "nota-sidebar-ui",
+          position: "inline",
+          anchor: container,
+          onMount: (shadowContainer) => {
+            const wrapper = document.createElement("div");
+            shadowContainer.append(wrapper);
+            reactRoot = createRoot(wrapper);
+            reactRoot.render(<NotesApp sdk={sdk} threadView={threadView} />);
+          },
+          onRemove: () => {
+            reactRoot?.unmount();
+          },
+        });
+
+        ui.mount();
+        panel.on("destroy", () => {
+          ui.remove();
+        });
+      })();
     });
   },
 });
