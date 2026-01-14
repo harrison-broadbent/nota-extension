@@ -1,0 +1,31 @@
+{
+  "name": "nota-extension",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Chrome extension for Nota using WXT, React, TailwindCSS, and InboxSDK",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@inboxsdk/core": "^2.2.11",
+    "clsx": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.24",
+    "@types/react-dom": "^18.2.12",
+    "@wxt-dev/module-react": "^1.1.5",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.29",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.6"
+  }
+}
