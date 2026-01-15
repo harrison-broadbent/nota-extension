@@ -1,28 +1,6 @@
 import { getAuthToken, clearAuthToken } from "../utils/auth.js";
 import { emailThreadEmailNotesUrl, emailThreadUrl, extensionExchangeUrl, extensionPairingUrl, urlWithQueryParams } from "../utils/url_helpers.js";
 
-// export interface NoteData {
-//   id: number;
-//   body: string;
-//   created_at_relative: string;
-//   user_name: string;
-//   user_image_url: string;
-//   user_email_address: string;
-// }
-
-// export interface ThreadData {
-//   id: number;
-//   gmail_thread_id: string;
-//   thread_subject: string;
-// }
-
-// export interface ThreadResponse {
-//   thread: ThreadData;
-//   notes: NoteData[];
-// }
-
-
-
 /**
  * Helper function to perform an HTTP request with automatic Authorization
  * header injection.  It throws an Error if the response status is not

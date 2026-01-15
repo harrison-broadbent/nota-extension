@@ -26,7 +26,8 @@ export default defineContentScript({
       const panel = threadView.addSidebarContentPanel({
         el: container,
         title: "Nota Inbox *",
-        hideTitleBar: false,
+        hideTitleBar: true,
+        iconUrl: chrome.runtime.getURL("icons/notes.png"),
       });
 
       (async () => {

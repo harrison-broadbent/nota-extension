@@ -18,7 +18,11 @@ import {
   pollForPairingExchangeToken,
   getMailboxEmailAddressFromInboxSdk,
 } from "../utils/auth.js";
-import { extensionPairingUrl } from "../utils/url_helpers.js";
+import {
+  emailThreadsWebUrl,
+  emailThreadWebUrl,
+  extensionPairingUrl,
+} from "../utils/url_helpers.js";
 
 import { Button } from "./ui/Button.jsx";
 import { NoteRow } from "./notes/NoteRow.jsx";
@@ -37,6 +41,7 @@ import { getUserEmail, getUserImageUrl } from "../utils/helpers.js";
 const initialState = {
   status: "loading", // "loading" | "unauthenticated" | "waiting" | "ready" | "error"
   threadSubject: null,
+  threadId: null,
   notes: [],
   pairingToken: null,
   errorMessage: null,
@@ -62,6 +67,7 @@ function notesAppReducer(state, action) {
         ...state,
         status: "ready",
         threadSubject: action.threadSubject,
+        threadId: action.threadId,
         notes: action.notes,
         errorMessage: null,
         pairingToken: null,
@@ -166,6 +172,7 @@ const NotesApp = ({ sdk, threadView }) => {
       dispatch({
         type: "REFRESH_SUCCEEDED",
         threadSubject: data.thread.thread_subject,
+        threadId: data.thread.id,
         notes: data.notes,
       });
     } catch (err) {
@@ -291,35 +298,66 @@ const NotesApp = ({ sdk, threadView }) => {
   }
 
   return (
-    <div className="flex flex-col space-y-4 p-4 text-stone-950 text-sm">
-      <div>
-        <p className="font-bold">{state.threadSubject || "(no subject)"}</p>
-        <p className="text-stone-500 text-xs">{state.notes.length}/3 notes</p>
-      </div>
-
-      <div className="flex flex-col space-y-2">
-        {state.notes.length === 0 ? (
-          <p className="text-stone-500 italic">No notes yet. Add one below.</p>
-        ) : (
-          state.notes.map((note) => <NoteRow key={note.id} note={note} />)
-        )}
-      </div>
-
-      <form onSubmit={handleAddNote} className="flex flex-col space-y-2">
-        <textarea
-          value={newNote}
-          onChange={(event) => setNewNote(event.target.value)}
-          placeholder="Type your note…"
-          rows={3}
-          className="p-2 border rounded w-full"
+    <>
+      <div className="flex justify-between items-start p-4 border-stone-200 border-b w-full">
+        <a className="font-medium text-sm" href={emailThreadsWebUrl()}>
+          Nota Inbox
+        </a>
+        <img
+          className="rounded-full size-5"
+          src={rawUserImageUrl}
+          title={rawUserEmail}
         />
-        <Button type="submit" className="self-end">
-          Add
-        </Button>
-      </form>
+      </div>
+      <div className="flex flex-col space-y-4 p-4 text-stone-950 text-sm">
+        <div className="flex justify-between items-start gap-x-1">
+          <div>
+            <p className="font-bold">{state.threadSubject || "(no subject)"}</p>
+            <p className="text-stone-500 text-xs">{state.notes.length} notes</p>
+          </div>
+          <div class="flex justify-center items-center hover:bg-stone-200 p-1 rounded-full size-6 shrink-0">
+            <a
+              target="_blank"
+              className=""
+              title="View in Nota"
+              href={emailThreadWebUrl(state.threadId)}
+            >
+              ↗
+            </a>
+          </div>
+        </div>
 
-      <details>
-        <summary>Account Settings</summary>
+        <div className="flex flex-col space-y-3">
+          {state.notes.length === 0 ? (
+            <p className="text-stone-500 italic">
+              No notes yet. Add one below.
+            </p>
+          ) : (
+            state.notes.map((note) => <NoteRow key={note.id} note={note} />)
+          )}
+        </div>
+
+        <form
+          onSubmit={handleAddNote}
+          className="flex flex-col items-start gap-x-2 mt-8"
+        >
+          <textarea
+            value={newNote}
+            onChange={(event) => setNewNote(event.target.value)}
+            placeholder="Type your note…"
+            rows={3}
+            className="p-2 border rounded w-full"
+          />
+          <Button type="submit" className="self-end mt-2">
+            Add
+          </Button>
+        </form>
+      </div>
+
+      <details className="mt-4 p-4 border-stone-200 border-t">
+        <summary className="text-stone-500 text-sm cursor-pointer select-none">
+          Account Settings
+        </summary>
         <div className="flex gap-x-2 mt-4">
           <img className="rounded-full size-5" src={rawUserImageUrl} />
           <p className="font-medium text-sm">{rawUserEmail}</p>
@@ -328,7 +366,7 @@ const NotesApp = ({ sdk, threadView }) => {
           Logout
         </Button>
       </details>
-    </div>
+    </>
   );
 };
 
