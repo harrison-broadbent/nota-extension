@@ -1,5 +1,6 @@
 export const [getUserEmail, setUserEmail, clearUserEmail] = useLocalStorage("nota_user_email");
 export const [getUserImageUrl, setUserImageUrl, clearUserImageUrl] = useLocalStorage("nota_user_image_url");
+export const [getAuthToken, setAuthToken, clearAuthToken] = useLocalStorage("nota_api_token");
 
 export function useLocalStorage(key) {
 	const storageKey = `local:${key}`;

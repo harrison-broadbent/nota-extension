@@ -1,19 +1,12 @@
 import { Button } from "../ui/Button";
 
-export const WaitingForAuthScreen = ({
-  pairingToken,
-  onReopenLoginTab,
-  onCancel,
-}) => {
+export const WaitingForAuthScreen = ({ onReopenLoginTab, onCancel }) => {
   return (
     <div className="flex flex-col space-y-3 p-4 text-sm">
       <div>
         <p className="font-medium">Waiting for authorization…</p>
         <p className="text-stone-600">
           Complete sign-in in the opened tab, then return here.
-        </p>
-        <p className="mt-2 text-stone-500 text-xs">
-          Pairing token: {pairingToken}
         </p>
       </div>
 

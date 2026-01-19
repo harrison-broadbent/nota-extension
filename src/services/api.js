@@ -1,4 +1,4 @@
-import { getAuthToken, clearAuthToken } from "../utils/auth.js";
+import { getAuthToken, clearAuthToken } from "../utils/helpers.js";
 import { emailThreadEmailNotesUrl, emailThreadUrl, extensionExchangeUrl, extensionPairingUrl, urlWithQueryParams } from "../utils/url_helpers.js";
 
 /**
@@ -72,44 +72,3 @@ export async function createNote(gmailThreadId, subject, mailboxEmailAddress, bo
     body: JSON.stringify(payload),
   });
 }
-
-/**
- * Initiate the pairing process by calling the /extension/pair endpoint on
- * your backend.  This endpoint should require a logged-in user and return
- * a unique state string.  Credentials must be included so the user's
- * session cookie is sent.  The returned state is later exchanged for
- * an API token via the /api/v1/extension/exchange endpoint.
- */
-// export async function requestPairingState() {
-// const token = crypto.randomUUID();
-// const response = await fetch(extensionPairingUrl(token), {
-//   method: "GET",
-//   credentials: "include",
-// });
-
-// if (!response.ok) {
-//   const message = await response.text();
-//   throw new Error(
-//     `Failed to request extension pairing: ${message || response.statusText}`
-//   );
-// }
-
-// const json = await response.json();
-// return json.state;
-
-
-// }
-
-/**
- * Exchange a previously generated pairing state for an API token.  This
- * endpoint lives under /api/v1 because it returns an addon_auth_token for the
- * user identified by the state.  The token can then be stored for use on
- * subsequent requests.
- */
-// export interface ExchangeTokenResponse {
-//   token: string;
-//   email: string;
-//   avatar_url: string;
-// }
-
-

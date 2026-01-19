@@ -7,14 +7,7 @@ import {
   useState,
 } from "react";
 import { fetchThread, createNote } from "../services/api.js";
-import {
-  getAuthToken,
-  setAuthToken,
-  clearAuthToken,
-  pollForPairingExchangeToken,
-  getMailboxEmailAddressFromInboxSdk,
-  exchangePairingToken,
-} from "../utils/auth.js";
+import { getMailboxEmailAddressFromInboxSdk } from "../utils/auth.js";
 import {
   emailThreadsWebUrl,
   emailThreadWebUrl,
@@ -27,7 +20,13 @@ import { LoadingScreen } from "./screens/LoadingScreen.jsx";
 import { UnauthenticatedScreen } from "./screens/UnauthenticatedScreen.jsx";
 import { WaitingForAuthScreen } from "./screens/WaitingForAuthScreen.jsx";
 import { ErrorScreen } from "./screens/ErrorScreen.jsx";
-import { getUserEmail, getUserImageUrl } from "../utils/helpers.js";
+import {
+  getUserEmail,
+  getUserImageUrl,
+  getAuthToken,
+  setAuthToken,
+  clearAuthToken,
+} from "../utils/helpers.js";
 
 /**
  * --------------------------
@@ -40,7 +39,6 @@ const initialState = {
   threadSubject: null,
   threadId: null,
   notes: [],
-  pairingToken: null,
   errorMessage: null,
 };
 
@@ -67,7 +65,6 @@ function notesAppReducer(state, action) {
         threadId: action.threadId,
         notes: action.notes,
         errorMessage: null,
-        pairingToken: null,
       };
 
     case "REFRESH_FAILED":
@@ -81,7 +78,6 @@ function notesAppReducer(state, action) {
       return {
         ...state,
         status: "waiting",
-        pairingToken: action.pairingToken,
         errorMessage: null,
       };
 
@@ -160,7 +156,7 @@ const NotesApp = ({ sdk, threadView }) => {
       const data = await fetchThread(
         gmailThreadId,
         subject,
-        mailboxEmailAddress
+        mailboxEmailAddress,
       );
 
       console.log(">>> fetchThread data");
@@ -220,13 +216,14 @@ const NotesApp = ({ sdk, threadView }) => {
   const handleAuth = async () => {
     if (state.status === "waiting") return;
 
-    const pairingToken = crypto.randomUUID();
     authCancelRef.current = { canceled: false };
 
-    dispatch({ type: "AUTH_STARTED", pairingToken });
+    dispatch({ type: "AUTH_STARTED" });
 
-    const authUrl = extensionPairingUrl(pairingToken);
+    const authUrl = extensionPairingUrl();
     const openedWindow = window.open(authUrl, "_blank");
+
+    // TODO: somehow 'know' when auth success via background and dispatch success
 
     if (!openedWindow) {
       dispatch({
@@ -235,41 +232,6 @@ const NotesApp = ({ sdk, threadView }) => {
           "Popup blocked. Please allow popups for Gmail and try again.",
       });
       return;
-    }
-
-    try {
-      await pollForPairingExchangeToken({
-        pairingToken,
-        exchangePairingToken,
-        shouldCancel: () =>
-          !isMountedRef.current || authCancelRef.current.canceled,
-      });
-
-      const token = await getAuthToken();
-      await setAuthToken(token);
-
-      // Only refresh if still mounted and not canceled.
-      if (!isMountedRef.current || authCancelRef.current.canceled) return;
-
-      await refresh();
-    } catch (err) {
-      if (err?.code === "canceled") {
-        dispatch({ type: "AUTH_CANCELED" });
-        return;
-      }
-
-      if (err?.code === "timeout") {
-        dispatch({
-          type: "AUTH_FAILED",
-          errorMessage: "Authorization timed out.",
-        });
-        return;
-      }
-
-      dispatch({
-        type: "AUTH_FAILED",
-        errorMessage: err?.message || "Failed to authenticate",
-      });
     }
   };
 
@@ -281,11 +243,8 @@ const NotesApp = ({ sdk, threadView }) => {
   if (state.status === "waiting") {
     return (
       <WaitingForAuthScreen
-        pairingToken={state.pairingToken}
         onCancel={handleCancelAuth}
-        onReopenLoginTab={() =>
-          window.open(extensionPairingUrl(state.pairingToken), "_blank")
-        }
+        onReopenLoginTab={() => window.open(extensionPairingUrl(), "_blank")}
       />
     );
   }
