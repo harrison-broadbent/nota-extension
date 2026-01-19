@@ -81,6 +81,13 @@ function notesAppReducer(state, action) {
         errorMessage: null,
       };
 
+    case "AUTH_SUCCEEDED":
+      return {
+        ...state,
+        status: "loading",
+        errorMessage: null,
+      };
+
     case "AUTH_CANCELED":
       return {
         ...initialState,
@@ -122,20 +129,23 @@ const NotesApp = ({ sdk, threadView }) => {
 
   useEffect(() => {
     (async () => {
-      const [email, imageUrl] = await Promise.all([
-        getUserEmail(),
-        getUserImageUrl(),
-      ]);
-      if (!isMountedRef.current) return;
-
-      setRawUserEmail(email);
-      setRawUserImageUrl(imageUrl);
+      loadUserProfileFromStorage();
     })();
+  }, []);
+
+  const loadUserProfileFromStorage = useCallback(async () => {
+    const [email, imageUrl] = await Promise.all([
+      getUserEmail(),
+      getUserImageUrl(),
+    ]);
+    if (!isMountedRef.current) return;
+
+    setRawUserEmail(email);
+    setRawUserImageUrl(imageUrl);
   }, []);
 
   // Allow canceling the auth polling loop
   const authCancelRef = useRef({ canceled: false });
-
   const mailboxEmailAddress = useMemo(() => {
     return getMailboxEmailAddressFromInboxSdk(sdk);
   }, [sdk]);
@@ -185,6 +195,35 @@ const NotesApp = ({ sdk, threadView }) => {
     refresh();
   }, [refresh]);
 
+  const completeAuthIfTokenPresent = useCallback(async () => {
+    const token = await getAuthToken();
+    if (!token) return false;
+
+    await loadUserProfileFromStorage();
+
+    // If we were waiting/unauthenticated, flip back to loading and refresh.
+    if (state.status === "waiting" || state.status === "unauthenticated") {
+      dispatch({ type: "AUTH_SUCCEEDED" });
+      await refresh();
+    }
+
+    return true;
+  }, [loadUserProfileFromStorage, refresh, state.status]);
+
+  useEffect(() => {
+    // React to storage changes (token is persisted by the background script).
+    // We don't assume the exact key name here; any change triggers a token re-check.
+    if (!browser?.storage?.onChanged) return;
+
+    const onChanged = async () => {
+      if (!isMountedRef.current) return;
+      await completeAuthIfTokenPresent();
+    };
+
+    browser.storage.onChanged.addListener(onChanged);
+    return () => browser.storage.onChanged.removeListener(onChanged);
+  }, [completeAuthIfTokenPresent]);
+
   const handleAddNote = async (event) => {
     event.preventDefault();
     const trimmed = newNote.trim();
@@ -205,6 +244,9 @@ const NotesApp = ({ sdk, threadView }) => {
 
   const handleLogout = async () => {
     await clearAuthToken();
+    setRawUserEmail(null);
+    setRawUserImageUrl(null);
+
     dispatch({ type: "UNAUTHENTICATED" });
   };
 

@@ -20,7 +20,7 @@ function extractExtensionStateFromUrl(url) {
   return hashParams.get("extension_state");
 }
 
-export async function handleBackgroundAuth(url) {
+export async function handleBackgroundAuth(url, tabId) {
   if (url.origin === BACKEND_BASE_URL) {
     const extensionState = extractExtensionStateFromUrl(url);
 

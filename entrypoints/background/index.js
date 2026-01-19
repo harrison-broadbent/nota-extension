@@ -20,6 +20,6 @@ export default defineBackground(() => {
     if (!urlString) return;
 
     const url = new URL(urlString)
-    await handleBackgroundAuth(url)
+    await handleBackgroundAuth(url, tabId)
   });
 });
