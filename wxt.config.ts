@@ -25,13 +25,16 @@ export default defineConfig({
     name: "Nota Extension",
     description: "Display and add notes to email threads inside Gmail.",
     version: "0.1.2",
-    manifest_version: 3,
     // Storage permission allows us to store the API token in chrome.storage.local.
-    permissions: ["storage", "scripting"],
+    permissions: ["tabs", "storage", "scripting"],
     // We only need host permissions for Gmail so that our content script can
     // run on mail.google.com.  WXT will automatically add the content
     // script to the manifest based on the entrypoint file name.
-    host_permissions: ["https://mail.google.com/*"],
+    host_permissions: [
+      "https://mail.google.com/*",
+      "https://notainbox.com/*",
+      "http://localhost:3000/*",
+    ],
     web_accessible_resources: [
       {
         resources: ["pageWorld.js", "pageWorld.js.map"],

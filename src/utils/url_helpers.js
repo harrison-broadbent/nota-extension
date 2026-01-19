@@ -6,7 +6,7 @@ export const emailThreadsWebUrl = () => { return BACKEND_BASE_URL + "/email_thre
 export const emailThreadWebUrl = (threadId) => { return BACKEND_BASE_URL + "/email_threads/" + encodeURIComponent(threadId); }
 export const emailThreadUrl = (threadId) => { return BACKEND_API_BASE_URL + "/email_threads/" + encodeURIComponent(threadId); }
 export const emailThreadEmailNotesUrl = (threadId) => { return BACKEND_API_BASE_URL + "/email_threads/" + encodeURIComponent(threadId) + "/email_notes" }
-export const extensionPairingUrl = (pairingState) => { return BACKEND_BASE_URL + "/extension/pair?state=" + encodeURIComponent(pairingState); }
+export const extensionPairingUrl = () => { return BACKEND_BASE_URL + "/extension/pair"; }
 export const extensionExchangeUrl = (pairingState) => { return BACKEND_API_BASE_URL + "/extension/exchange?state=" + encodeURIComponent(pairingState); }
 
 export function urlWithQueryParams(baseUrl, queryParams = {}) {

@@ -6,17 +6,14 @@ import {
   useCallback,
   useState,
 } from "react";
-import {
-  fetchThread,
-  createNote,
-  exchangePairingToken,
-} from "../services/api.js";
+import { fetchThread, createNote } from "../services/api.js";
 import {
   getAuthToken,
   setAuthToken,
   clearAuthToken,
   pollForPairingExchangeToken,
   getMailboxEmailAddressFromInboxSdk,
+  exchangePairingToken,
 } from "../utils/auth.js";
 import {
   emailThreadsWebUrl,

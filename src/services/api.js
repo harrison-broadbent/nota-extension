@@ -112,10 +112,4 @@ export async function createNote(gmailThreadId, subject, mailboxEmailAddress, bo
 //   avatar_url: string;
 // }
 
-export async function exchangePairingToken(state) {
 
-  return authedRequest(
-    extensionExchangeUrl(state),
-    { method: "GET" }
-  );
-}

@@ -1,5 +1,6 @@
 
 import { setUserEmail, setUserImageUrl, useLocalStorage } from "./helpers";
+import { extensionExchangeUrl } from "./url_helpers";
 
 export const [getAuthToken, setAuthToken, clearAuthToken] = useLocalStorage("nota_api_token");
 
@@ -49,4 +50,12 @@ export function getMailboxEmailAddressFromInboxSdk(sdk) {
   } catch {
     return "";
   }
+}
+
+export async function exchangePairingToken(state) {
+
+  return authedRequest(
+    extensionExchangeUrl(state),
+    { method: "GET" }
+  );
 }
