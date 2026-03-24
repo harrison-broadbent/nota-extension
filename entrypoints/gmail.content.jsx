@@ -27,7 +27,7 @@ export default defineContentScript({
         el: container,
         title: "Nota Inbox *",
         hideTitleBar: true,
-        iconUrl: chrome.runtime.getURL("icons/notes.png"),
+        iconUrl: chrome.runtime.getURL("icon-128.png"),
       });
 
       (async () => {

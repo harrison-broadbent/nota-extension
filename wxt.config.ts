@@ -1,6 +1,7 @@
 import { defineConfig } from "wxt";
 import { resolve } from "path";
 import { copyFileSync } from "fs";
+import tailwindcss from "@tailwindcss/vite";
 
 /**
  * WXT configuration for the Nota extension.  This file defines the extension's
@@ -20,6 +21,9 @@ export default defineConfig({
   },
   // Enable React support provided by WXT's module-react plugin.  This
   // automatically configures Vite and esbuild for JSX transformation.
+  vite: () => ({
+    plugins: [tailwindcss()],
+  }),
   modules: ["@wxt-dev/module-react"],
   manifest: {
     name: "Nota Extension",
@@ -37,7 +41,7 @@ export default defineConfig({
     ],
     web_accessible_resources: [
       {
-        resources: ["pageWorld.js", "pageWorld.js.map"],
+        resources: ["pageWorld.js", "pageWorld.js.map", "icon-128.png"],
         matches: ["https://mail.google.com/*"],
       },
     ],

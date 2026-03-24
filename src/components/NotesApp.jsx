@@ -6,6 +6,7 @@ import {
   useCallback,
   useState,
 } from "react";
+
 import { fetchThread, createNote } from "../services/api.js";
 import { getMailboxEmailAddressFromInboxSdk } from "../utils/auth.js";
 import {
@@ -297,27 +298,35 @@ const NotesApp = ({ sdk, threadView }) => {
 
   return (
     <>
-      <div className="flex justify-between items-start p-4 border-stone-200 border-b w-full">
-        <a className="font-medium text-sm" href={emailThreadsWebUrl()}>
-          Nota Inbox
-        </a>
-        <img
-          className="rounded-full size-5"
-          src={rawUserImageUrl}
-          title={rawUserEmail}
-        />
+      <div className="bg-stone-950 border-stone-200 border-b w-full">
+        <div className="flex justify-between items-start p-4 text-stone-50">
+          <a className="font-medium text-sm" href={emailThreadsWebUrl()}>
+            Nota Inbox
+          </a>
+          <img
+            className="rounded-full size-5"
+            src={rawUserImageUrl}
+            title={rawUserEmail}
+          />
+        </div>
       </div>
       <div className="flex flex-col space-y-4 p-4 text-stone-950 text-sm">
-        <div className="flex justify-between items-start gap-x-1">
+        <div className="flex justify-between items-start gap-x-1 -mx-4 px-4 pb-4 border-stone-200 border-b">
           <div>
-            <p className="font-bold">{state.threadSubject || "(no subject)"}</p>
-            <p className="text-stone-500 text-xs">{state.notes.length} notes</p>
+            <p className="font-semibold">
+              {state.threadSubject || "(no subject)"}
+            </p>
+            <p className="mt-1 text-stone-500 text-xs">
+              {state.notes.length === 0
+                ? "No notes yet. Add one below."
+                : `${state.notes.length} notes`}
+            </p>
           </div>
-          <div class="flex justify-center items-center hover:bg-stone-200 p-1 rounded-full size-6 shrink-0">
+          <div className="flex justify-center items-center hover:bg-stone-200 p-1 rounded-full size-6 shrink-0">
             <a
               target="_blank"
               className=""
-              title="View in Nota"
+              title="Open in Nota"
               href={emailThreadWebUrl(state.threadId)}
             >
               ↗
@@ -326,13 +335,9 @@ const NotesApp = ({ sdk, threadView }) => {
         </div>
 
         <div className="flex flex-col space-y-3">
-          {state.notes.length === 0 ? (
-            <p className="text-stone-500 italic">
-              No notes yet. Add one below.
-            </p>
-          ) : (
-            state.notes.map((note) => <NoteRow key={note.id} note={note} />)
-          )}
+          {state.notes.length > 0
+            ? state.notes.map((note) => <NoteRow key={note.id} note={note} />)
+            : null}
         </div>
 
         <form
@@ -344,23 +349,26 @@ const NotesApp = ({ sdk, threadView }) => {
             onChange={(event) => setNewNote(event.target.value)}
             placeholder="Type your note…"
             rows={3}
-            className="p-2 border rounded w-full"
+            className="p-2 border border-stone-200 rounded-sm w-full"
           />
-          <Button type="submit" className="self-end mt-2">
-            Add
+          <Button
+            type="submit"
+            className="inline-flex items-center self-end gap-x-1 mt-2"
+          >
+            + Add
           </Button>
         </form>
       </div>
 
       <details className="mt-4 p-4 border-stone-200 border-t">
-        <summary className="text-stone-500 text-sm cursor-pointer select-none">
+        <summary className="hover:bg-stone-100 p-1 rounded-sm text-stone-500 text-sm transition-all cursor-pointer select-none">
           Account Settings
         </summary>
         <div className="flex gap-x-2 mt-4">
           <img className="rounded-full size-5" src={rawUserImageUrl} />
           <p className="font-medium text-sm">{rawUserEmail}</p>
         </div>
-        <Button onClick={handleLogout} className="mt-4">
+        <Button variant="secondary" onClick={handleLogout} className="mt-4">
           Logout
         </Button>
       </details>

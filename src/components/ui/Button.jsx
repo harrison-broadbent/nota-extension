@@ -1,7 +1,8 @@
 import classnames from "../../utils/classnames";
 
 export const Button = ({ variant = "primary", className = "", ...props }) => {
-  const base = "px-3 py-1.5 rounded-md text-sm font-medium shrink-0";
+  const base =
+    "cursor-pointer px-3 py-1.5 rounded-sm text-sm font-medium shrink-0";
   const variants = {
     primary: "bg-stone-900 hover:bg-stone-700 text-stone-50",
     secondary:
@@ -13,7 +14,7 @@ export const Button = ({ variant = "primary", className = "", ...props }) => {
       className={classnames(
         base,
         variants[variant] ?? variants.primary,
-        className
+        className,
       )}
       {...props}
     ></button>
